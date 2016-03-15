@@ -28,11 +28,13 @@ int main()
 	FD_ZERO(&inset2);
 	FD_SET(fds[1],&inset2);
 
+	tv.tv_sec = 2;
+	tv.tv_usec = 0;
 	while(FD_ISSET(fds[0],&inset1) || FD_ISSET(fds[1],&inset2)){
-		if(select(maxfd+1,&inset1,&inset2,NULL,&tv))
+		if(select(maxfd+1,&inset1,&inset2,NULL,&tv) < 0)
 			perror("select");
 		else{
-			if(FD_SET(fds[0],&inset1)){
+			if(FD_ISSET(fds[0],&inset1)){
 				rc = read(fds[0],buf,7);
 				if(rc > 0){
 					buf[rc] = '\0';
@@ -42,8 +44,8 @@ int main()
 					perror("read:");
 			}
 
-			if(FD_SET(fds[1],&inset2)){
-				rc = read(fds[0],buf,7);
+			if(FD_ISSET(fds[1],&inset2)){
+				rc = write(fds[1],buf,7);
 				if(rc > 0){
 					buf[rc] = '\0';
 					printf("rc=%d,write:%s\n",rc,buf);
